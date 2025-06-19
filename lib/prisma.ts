@@ -1,11 +1,15 @@
-// prisma.ts
-import { PrismaClient } from "@prisma/client"
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client'
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient()
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma
+declare global {
+  // Allow re-use of PrismaClient in dev to prevent too many connections
+  var prisma: PrismaClient | undefined
 }
+
+const prisma = global.prisma ?? new PrismaClient()
+
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prisma
+}
+
+export default prisma

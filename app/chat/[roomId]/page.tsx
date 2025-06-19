@@ -1,53 +1,91 @@
 // app/chat/[roomId]/page.tsx
 'use client'
-import { useState } from 'react'
-import useSWR from 'swr'
-import { useSearchParams } from 'next/navigation'
 
-const fetcher = (url: string) => fetch(url).then(res => res.json())
+import { useParams } from 'next/navigation'
+import { useEffect, useState, FormEvent } from 'react'
 
-export default function ChatRoom() {
-  const params = useSearchParams()
-  const roomId = params.get('roomId')!
-  const { data: messages, mutate } = useSWR(
-    `/api/chat/${roomId}`,
-    fetcher,
-    { refreshInterval: 500 }
-  )
-  const [input, setInput] = useState('')
+interface Message {
+  id:        number
+  content:   string
+  createdAt: string
+  author:    { email: string }
+}
 
-  async function send() {
-    if (!input.trim()) return
-    await fetch(`/api/chat/${roomId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: input }),
-    })
-    setInput('')
-    mutate()
+export default function ChatPage() {
+  const { roomId } = useParams()
+  const [messages, setMessages] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  // helper to load all messages
+  const fetchMessages = async () => {
+    if (!roomId) return
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/chat/${roomId}`)
+      const data = await res.json() as Message[]
+      setMessages(data)
+    } finally {
+      setLoading(false)
+    }
   }
 
+  useEffect(() => {
+    fetchMessages()
+  }, [roomId])
+
+  const handleSend = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!roomId || !newMessage.trim()) return
+
+    const res = await fetch(`/api/chat/${roomId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: newMessage }),
+    })
+
+    if (!res.ok) {
+      console.error('Send failed:', await res.text())
+      return
+    }
+
+    // 1️⃣ read back the new message (now with author.email!)
+    const saved = await res.json() as Message
+
+    // 2️⃣ append it to your local list
+    setMessages((prev) => [...prev, saved])
+
+    setNewMessage('')
+  }
+
+  if (!roomId) return <p>Laster rom…</p>
   return (
-    <div className="p-4">
-      <h1 className="text-xl mb-4">Room #{roomId}</h1>
-      <ul className="space-y-2 mb-4">
-        {messages?.map((m: any) => (
-          <li key={m.id}>
-            <span className="font-semibold">{m.author.name}:</span> {m.content}
-          </li>
-        ))}
-      </ul>
-      <div className="flex">
+    <div>
+      <h1>Chat Room {roomId}</h1>
+      {loading ? (
+        <p>Henter meldinger…</p>
+      ) : (
+        <ul>
+          {messages.map((m) => (
+            <li key={m.id}>
+              <strong>{m.author.email}:</strong> {m.content}
+              <span style={{ marginLeft: 8, fontSize: '0.8em', color: '#666' }}>
+                {new Date(m.createdAt).toLocaleTimeString()}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <form onSubmit={handleSend}>
         <input
-          className="flex-1 border rounded px-2 py-1 mr-2"
-          value={input}
-          onChange={e => setInput(e.target.value)}
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Skriv melding…"
         />
-        <button className="px-4 py-1 bg-blue-600 text-white rounded" onClick={send}>
+        <button type="submit" disabled={!newMessage.trim()}>
           Send
         </button>
-      </div>
+      </form>
     </div>
   )
 }
