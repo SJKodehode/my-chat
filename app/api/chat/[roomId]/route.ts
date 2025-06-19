@@ -1,6 +1,5 @@
 // app/api/chat/[roomId]/route.ts
 import { NextResponse, NextRequest } from 'next/server'
-import type { NextAuthRequest } from 'next-auth'
 import { auth } from '@/auth'
 import prisma from '@/lib/prisma'
 
