@@ -36,7 +36,7 @@ export async function GET(
   // 2️⃣ fetch messages for this room
   const messages = await prisma.message.findMany({
     where: { roomId: id },
-    include: { author: { select: { email: true } } },
+    include: { author: { select: { email: true, name: true } } },
     orderBy: { createdAt: 'asc' },
   })
 
@@ -76,7 +76,7 @@ export async function POST(
         },
       },
     },
-    include: { author: { select: { email: true } } },
+    include: { author: { select: { email: true, name: true } } },
   })
 
   return NextResponse.json(message, { status: 201 })
