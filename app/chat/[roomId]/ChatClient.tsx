@@ -88,7 +88,7 @@ export default function ChatClient() {
   return (
     <div className="bg-white text-black flex flex-col justify-center items-center min-h-screen ">
         <div className="absolute inset-0 bg-[url('/nicolas-cage-bg.jpg')] bg-cover bg-center opacity-60 z-0"></div>
-      <h1 className='z-10 text-4xl font-bold'>Nick's chat {roomId}</h1>
+      <h1 className='z-10 text-4xl font-bold'>Nick&apos;s chat {roomId}</h1>
 
       {loading ? (
         <p className='z-10'>Henter meldinger…</p>
