@@ -88,12 +88,12 @@ export default function ChatClient() {
   return (
     <div className="bg-white text-black flex flex-col justify-center items-center min-h-screen ">
         <div className="absolute inset-0 bg-[url('/nicolas-cage-bg.jpg')] bg-cover bg-center opacity-60 z-0"></div>
-      <h1 className='z-10 text-4xl font-bold'>Kodehode chat {roomId}</h1>
+      <h1 className='z-10 text-4xl font-bold'>Nick's chat {roomId}</h1>
 
       {loading ? (
         <p className='z-10'>Henter meldinger…</p>
       ) : (
-        <div className='z-10 overflow-y-auto h-[70vh] w-full lg:w-[50vw] px-4'>
+        <div className='z-10 overflow-y-auto h-[85vh] md:h-[70vh] w-full lg:w-[50vw] px-4'>
             
           <ul className='space-y-4'>
             {messages.map(m => (
