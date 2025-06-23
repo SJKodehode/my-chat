@@ -17,5 +17,9 @@ export const {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
+  pages: {
+    signIn: '/',
+    error: '/',
+  },
   secret: process.env.AUTH_SECRET!, 
 })
